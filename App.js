@@ -1,50 +1,226 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  StatusBar,
+  Platform,
+} from 'react-native';
 
-const products = [
-  { id: '1', name: 'Produit 1', price: '10€', image: 'https://via.placeholder.com/100' },
-  { id: '2', name: 'Produit 2', price: '15€', image: 'https://via.placeholder.com/100' },
-  { id: '3', name: 'Produit 3', price: '20€', image: 'https://via.placeholder.com/100' },
-];
+const HomeScreen = () => {
+  const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default function App() {
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  useEffect(() => {
+    fetch('http://172.16.32.100/ecomishak/api.php')
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setProducts(json.data);
+        } else {
+          setProducts([]);
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#2c3e50" />
+        <Text style={styles.loadingText}>Chargement des produits...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Erreur : {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {selectedProduct ? (
-        <View style={styles.detailContainer}>
-          <Image source={{ uri: selectedProduct.image }} style={styles.image} />
-          <Text style={styles.title}>{selectedProduct.name}</Text>
-          <Text style={styles.price}>{selectedProduct.price}</Text>
-          <TouchableOpacity onPress={() => setSelectedProduct(null)} style={styles.button}>
-            <Text style={styles.buttonText}>Retour</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={products}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => setSelectedProduct(item)} style={styles.product}>
-              <Image source={{ uri: item.image }} style={styles.image} />
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.price}>{item.price}</Text>
-            </TouchableOpacity>
-          )}
+      {/* En-tête */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Boutique</Text>
+      </View>
+
+      {/* Barre de recherche */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Rechercher un produit..."
+          placeholderTextColor="#95a5a6"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
-      )}
+      </View>
+
+      {/* Liste des produits */}
+      <FlatList
+        data={products.filter((product) =>
+          product.nom_produit.toLowerCase().includes(searchQuery.toLowerCase())
+        )}
+        keyExtractor={(item) => item.produit_id.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.productCard}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{
+                  uri: item.image_url || 'https://via.placeholder.com/150',
+                }}
+                style={styles.productImage}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.productName} numberOfLines={2}>
+              {item.nom_produit}
+            </Text>
+            <Text style={styles.productPrice}>{item.prix}€</Text>
+          </TouchableOpacity>
+        )}
+      />
+
+      {/* Pied de page */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2025 InstaShop</Text>
+      </View>
     </View>
   );
-}
+};
+
+const App = () => {
+  return (
+    <View style={{ flex: 1 }}>
+      <StatusBar backgroundColor="#2c3e50" barStyle="light-content" />
+      <HomeScreen />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
-  product: { padding: 20, backgroundColor: 'white', marginVertical: 10, borderRadius: 10, alignItems: 'center' },
-  image: { width: 100, height: 100, marginBottom: 10 },
-  title: { fontSize: 18, fontWeight: 'bold' },
-  price: { fontSize: 16, color: 'gray' },
-  detailContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  button: { marginTop: 20, padding: 10, backgroundColor: 'blue', borderRadius: 5 },
-  buttonText: { color: 'white', fontSize: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#7f8c8d',
+    fontSize: 16,
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  header: {
+    paddingVertical: 25,
+    backgroundColor: '#2c3e50',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  searchContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ecf0f1',
+  },
+  searchInput: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#dfe6e9',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    color: '#2d3436',
+  },
+  listContent: {
+    paddingHorizontal: '2%',
+    paddingBottom: '5%',
+  },
+  productCard: {
+    flexBasis: '48%',
+    marginHorizontal: '1%',
+    marginBottom: '4%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: '5%',
+    alignItems: 'center',
+    elevation: Platform.OS === 'android' ? 3 : 0,
+    shadowColor: Platform.OS === 'ios' ? '#000' : undefined,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.1 : undefined,
+    shadowRadius: Platform.OS === 'ios' ? 3 : undefined,
+  },
+  imageContainer: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#34495e',
+    textAlign: 'center',
+    marginHorizontal: 5,
+    marginBottom: 5,
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#27ae60',
+  },
+  footer: {
+    padding: 15,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#ecf0f1',
+    backgroundColor: '#fff',
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#7f8c8d',
+  },
 });
+
+export default App;

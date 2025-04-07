@@ -73,45 +73,6 @@ namespace e_proejct_F_4_7_2
             {
                 MessageBox.Show("Aucune modification n'a été effectuée.", "Avertissement", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         private void modifiyToolStripMenuItem_Click(object sender, EventArgs e)
