@@ -1,226 +1,145 @@
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const HomeScreen = () => {
-  const [products, setProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch('http://172.16.32.100/ecomishak/api.php')
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.success && json.data) {
-          setProducts(json.data);
-        } else {
-          setProducts([]);
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2c3e50" />
-        <Text style={styles.loadingText}>Chargement des produits...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Erreur : {error}</Text>
-      </View>
-    );
-  }
-
+// Écrans fictifs (à remplacer par vos vrais écrans)
+function HomeScreen() {
   return (
-    <View style={styles.container}>
-      {/* En-tête */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Boutique</Text>
-      </View>
+    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Accueil</Text>
+      {/* Contenu de l'accueil */}
+    </LinearGradient>
+  );
+}
 
-      {/* Barre de recherche */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Rechercher un produit..."
-          placeholderTextColor="#95a5a6"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
+function ExploreScreen() {
+  return (
+    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Découvrir</Text>
+      {/* Contenu de la découverte */}
+    </LinearGradient>
+  );
+}
 
-      {/* Liste des produits */}
-      <FlatList
-        data={products.filter((product) =>
-          product.nom_produit.toLowerCase().includes(searchQuery.toLowerCase())
-        )}
-        keyExtractor={(item) => item.produit_id.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.productCard}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{
-                  uri: item.image_url || 'https://via.placeholder.com/150',
-                }}
-                style={styles.productImage}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.productName} numberOfLines={2}>
-              {item.nom_produit}
+function FavoritesScreen() {
+  return (
+    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Favoris</Text>
+      {/* Contenu des favoris */}
+    </LinearGradient>
+  );
+}
+
+function ProfileScreen() {
+  return (
+    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Profil</Text>
+      {/* Contenu du profil */}
+    </LinearGradient>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+
+function CustomTabBar({ state, descriptors, navigation }) {
+  return (
+    <View style={styles.tabBarContainer}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        const iconName = {
+          'Accueil': 'home',
+          'Découvrir': 'compass',
+          'Favoris': 'heart',
+          'Profil': 'person',
+        }[route.name];
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={onPress}
+            style={styles.tabButton}
+          >
+            <Ionicons
+              name={iconName}
+              size={24}
+              color={isFocused ? '#000000' : '#888888'}
+            />
+            <Text style={[styles.tabLabel, { color: isFocused ? '#000000' : '#888888' }]}>
+              {route.name}
             </Text>
-            <Text style={styles.productPrice}>{item.prix}€</Text>
           </TouchableOpacity>
-        )}
-      />
-
-      {/* Pied de page */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 InstaShop</Text>
-      </View>
+        );
+      })}
     </View>
   );
-};
+}
 
-const App = () => {
+export default function App() {
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar backgroundColor="#2c3e50" barStyle="light-content" />
-      <HomeScreen />
-    </View>
+    <>
+      <StatusBar style="dark" />
+      <NavigationContainer>
+        <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />}>
+          <Tab.Screen name="Accueil" component={HomeScreen} />
+          <Tab.Screen name="Découvrir" component={ExploreScreen} />
+          <Tab.Screen name="Favoris" component={FavoritesScreen} />
+          <Tab.Screen name="Profil" component={ProfileScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
+  screenContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    padding: 20,
   },
-  center: {
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 20,
+    color: '#000000',
+  },
+  tabBarContainer: {
+    flexDirection: 'row',
+    height: 80,
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e5e5',
+    paddingHorizontal: 20,
+  },
+  tabButton: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#7f8c8d',
-    fontSize: 16,
-  },
-  errorText: {
-    color: '#e74c3c',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  header: {
-    paddingVertical: 25,
-    backgroundColor: '#2c3e50',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '600',
-    letterSpacing: 1,
-  },
-  searchContainer: {
-    paddingHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ecf0f1',
   },
-  searchInput: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#dfe6e9',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    backgroundColor: '#fff',
-    fontSize: 16,
-    color: '#2d3436',
-  },
-  listContent: {
-    paddingHorizontal: '2%',
-    paddingBottom: '5%',
-  },
-  productCard: {
-    flexBasis: '48%',
-    marginHorizontal: '1%',
-    marginBottom: '4%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: '5%',
-    alignItems: 'center',
-    elevation: Platform.OS === 'android' ? 3 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : undefined,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.1 : undefined,
-    shadowRadius: Platform.OS === 'ios' ? 3 : undefined,
-  },
-  imageContainer: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-  },
-  productName: {
-    fontSize: 14,
+  tabLabel: {
+    fontSize: 12,
+    marginTop: 5,
     fontWeight: '500',
-    color: '#34495e',
-    textAlign: 'center',
-    marginHorizontal: 5,
-    marginBottom: 5,
-  },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#27ae60',
-  },
-  footer: {
-    padding: 15,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#ecf0f1',
-    backgroundColor: '#fff',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#7f8c8d',
   },
 });
-
-export default App;
