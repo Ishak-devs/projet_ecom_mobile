@@ -4,11 +4,11 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import ExploreScreen from './src/ExploreScreen'
-import ProfileScreen from './src/ProfileScreen'
-import FavoritesScreen from './src/FavoritesScreen'
 import HomeScreen from './src/Homescreen';
+import { ProfileScreen } from './src/ProfileScreen';
+import { FavoritesScreen } from './src/FavoritesScreen';
+import { ExploreScreen } from './src/ExploreScreen';
+import { Shop } from './src/Shop';
 
 const Tab = createBottomTabNavigator();
 
@@ -70,9 +70,10 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />}>
           <Tab.Screen name="Accueil" component={HomeScreen} />
-          {/* <Tab.Screen name="Découvrir" component={ExploreScreen} />
+          <Tab.Screen name="Découvrir" component={ExploreScreen} />
           <Tab.Screen name="Favoris" component={FavoritesScreen} />
-          <Tab.Screen name="Profil" component={ProfileScreen} /> */}
+          <Tab.Screen name="Profil" component={ProfileScreen} />
+          <Tab.Screen name="Shop" component={Shop}/>
         </Tab.Navigator>
       </NavigationContainer>
     </>

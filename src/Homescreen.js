@@ -52,7 +52,7 @@ function HomeScreen({ navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>PARCOURIR PAR CATÉGORIE</Text>
         <View style={styles.categoryContainer}>
-          {['Running', 'Training', 'Football', 'Basketball'].map((category, index) => (
+          {['Running', 'Training'].map((category, index) => (
             <TouchableOpacity key={index} style={styles.categoryCard}>
               <Text style={styles.categoryText}>{category}</Text>
             </TouchableOpacity>
