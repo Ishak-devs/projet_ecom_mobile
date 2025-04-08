@@ -5,43 +5,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
-// Écrans fictifs (à remplacer par vos vrais écrans)
-function HomeScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Accueil</Text>
-      {/* Contenu de l'accueil */}
-    </LinearGradient>
-  );
-}
-
-function ExploreScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Découvrir</Text>
-      {/* Contenu de la découverte */}
-    </LinearGradient>
-  );
-}
-
-function FavoritesScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Favoris</Text>
-      {/* Contenu des favoris */}
-    </LinearGradient>
-  );
-}
-
-function ProfileScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Profil</Text>
-      {/* Contenu du profil */}
-    </LinearGradient>
-  );
-}
+import ExploreScreen from './src/ExploreScreen'
+import ProfileScreen from './src/ProfileScreen'
+import FavoritesScreen from './src/FavoritesScreen'
+import HomeScreen from './src/Homescreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -103,9 +70,9 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />}>
           <Tab.Screen name="Accueil" component={HomeScreen} />
-          <Tab.Screen name="Découvrir" component={ExploreScreen} />
+          {/* <Tab.Screen name="Découvrir" component={ExploreScreen} />
           <Tab.Screen name="Favoris" component={FavoritesScreen} />
-          <Tab.Screen name="Profil" component={ProfileScreen} />
+          <Tab.Screen name="Profil" component={ProfileScreen} /> */}
         </Tab.Navigator>
       </NavigationContainer>
     </>
