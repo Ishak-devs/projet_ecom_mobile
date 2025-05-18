@@ -1,145 +1,138 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet, View, StatusBar, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
+import HomeScreen from './screens/HomeScreen';
+import ProductScreen from './screens/ProductScreen';
+import CartScreen from './screens/CartScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import CategoryScreen from './screens/CategoryScreen';
+import SearchScreen from './screens/SearchScreen';
+import CheckoutScreen from './screens/CheckoutScreen';
+import FavoritesScreen from './screens/FavoritesScreen';
 
-// Écrans fictifs (à remplacer par vos vrais écrans)
-function HomeScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Accueil</Text>
-      {/* Contenu de l'accueil */}
-    </LinearGradient>
-  );
-}
-
-function ExploreScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Découvrir</Text>
-      {/* Contenu de la découverte */}
-    </LinearGradient>
-  );
-}
-
-function FavoritesScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Favoris</Text>
-      {/* Contenu des favoris */}
-    </LinearGradient>
-  );
-}
-
-function ProfileScreen() {
-  return (
-    <LinearGradient colors={['#f5f5f5', '#e5e5e5']} style={styles.screenContainer}>
-      <Text style={styles.screenTitle}>Profil</Text>
-      {/* Contenu du profil */}
-    </LinearGradient>
-  );
-}
-
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function CustomTabBar({ state, descriptors, navigation }) {
+// Custom theme for the app
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#FF6B6B',
+    accent: '#4ECDC4',
+    background: '#F7FFF7',
+    surface: '#FFFFFF',
+    text: '#292F36',
+    placeholder: '#A0A0A0',
+  },
+  roundness: 10,
+};
+
+// Main Tab Navigator
+function MainTabs() {
   return (
-    <View style={styles.tabBarContainer}>
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Categories') {
+            iconName = focused ? 'grid' : 'grid-outline';
+          } else if (route.name === 'Cart') {
+            iconName = focused ? 'cart' : 'cart-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Favorites') {
+            iconName = focused ? 'heart' : 'heart-outline';
           }
-        };
 
-        const iconName = {
-          'Accueil': 'home',
-          'Découvrir': 'compass',
-          'Favoris': 'heart',
-          'Profil': 'person',
-        }[route.name];
-
-        return (
-          <TouchableOpacity
-            key={route.key}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarTestID}
-            onPress={onPress}
-            style={styles.tabButton}
-          >
-            <Ionicons
-              name={iconName}
-              size={24}
-              color={isFocused ? '#000000' : '#888888'}
-            />
-            <Text style={[styles.tabLabel, { color: isFocused ? '#000000' : '#888888' }]}>
-              {route.name}
-            </Text>
-          </TouchableOpacity>
-        );
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
       })}
-    </View>
+      tabBarOptions={{
+        activeTintColor: theme.colors.primary,
+        inactiveTintColor: theme.colors.placeholder,
+        style: {
+          backgroundColor: theme.colors.surface,
+          borderTopWidth: 0,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          paddingBottom: 5,
+          height: 60,
+        },
+        labelStyle: {
+          fontSize: 12,
+          marginBottom: 5,
+        },
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Categories" component={CategoryScreen} />
+      <Tab.Screen name="Favorites" component={FavoritesScreen} />
+      <Tab.Screen name="Cart" component={CartScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <>
-      <StatusBar style="dark" />
-      <NavigationContainer>
-        <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />}>
-          <Tab.Screen name="Accueil" component={HomeScreen} />
-          <Tab.Screen name="Découvrir" component={ExploreScreen} />
-          <Tab.Screen name="Favoris" component={FavoritesScreen} />
-          <Tab.Screen name="Profil" component={ProfileScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </>
+    <PaperProvider theme={theme}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={theme.colors.surface} />
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: theme.colors.surface,
+                elevation: 0,
+                shadowOpacity: 0,
+              },
+              headerTintColor: theme.colors.primary,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}
+          >
+            <Stack.Screen
+              name="Main"
+              component={MainTabs}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Product"
+              component={ProductScreen}
+              options={({ route }) => ({ title: route.params.product.name })}
+            />
+            <Stack.Screen
+              name="Search"
+              component={SearchScreen}
+              options={{ title: 'Rechercher' }}
+            />
+            <Stack.Screen
+              name="Checkout"
+              component={CheckoutScreen}
+              options={{ title: 'Paiement' }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  screenContainer: {
+  container: {
     flex: 1,
-    padding: 20,
-  },
-  screenTitle: {
-    fontSize: 28,
-    fontWeight: '600',
-    marginBottom: 20,
-    color: '#000000',
-  },
-  tabBarContainer: {
-    flexDirection: 'row',
-    height: 80,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
-    paddingHorizontal: 20,
-  },
-  tabButton: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  tabLabel: {
-    fontSize: 12,
-    marginTop: 5,
-    fontWeight: '500',
+    backgroundColor: theme.colors.background,
   },
 });
